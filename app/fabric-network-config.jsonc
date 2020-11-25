@@ -1,0 +1,95 @@
+{
+  "projectName": "Test-Network", // composer project name and project folder name
+  "networkConfig": {
+    "isLocalHost": true, // To be used for multi machines
+    "tlsEnabled": true,
+    "networkVer": {
+      // We can change it to be docker images versions
+      "peer": "2.2.0",
+      "orderer": "2.2.0",
+      "couchdb": "2.2.0",
+      "ca": "1.4.8"
+    }
+  },
+  "orderer": {
+    // Orderer should be combined in one crypto config yaml file and the crypto materials should be distributed across docker containers
+    "name": "Orderer",
+    "mspid": "OrdererMSP",
+    "batchTimeout": "2s",
+    "batchSize": {
+      "maxMessageCount": 10,
+      "absoluteMaxBytes": "99 MB",
+      "PreferredMaxBytes": "512 KB"
+    },
+    "domain": "orderer.com",
+    "replicas": [
+      {
+        "hostName": "orderer1",
+        "publishedPort": 7050
+      },
+      {
+        "hostName": "orderer2",
+        "publishedPort": 8050
+      }
+    ]
+  },
+  "orgs": [
+    {
+      "name": "Regualtor",
+      "mspid": "Regualtor",
+      "domain": "regulator.com",
+      "enableNodeOUs": "true",
+      "usersCount": 2,
+      "certificateAuthorities": [
+        {
+          "caName": "ca-regulator",
+          "publishedCAPort": "7054",
+          "caUsername": "admin",
+          "caPassword": "adminpw"
+        }
+      ],
+
+      "peers": [
+        // size = crypto-config template count
+        {
+          "name": "peer0",
+          "couchdbUsername": "admin",
+          "couchdbPassword": "adminpw",
+          "publishedCouchdbPort": 5984,
+          "publishedPort": 7051,
+          "publishedEventPort": 7053
+        }
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "consortiumName": "FourOrgsChannel",
+      "name": "myChannel",
+      "chaincodeLang": "java",
+      "chaincodeLifecycleManager": "Regulator", // org name, Just to create channel and commit chaincode scripts
+      "chaincodeName": "mnp-chain",
+      "lifecycleEndorsement": {
+        "type": "ImplicitMeta",
+        "rule": "MAJORITY Endorsement"
+      },
+      "endorsement": {
+        "type": "ImplicitMeta",
+        "rule": "MAJORITY Endorsement"
+      },
+      "orgs": [
+        {
+          "mspid": "Regualtor",
+          "endorsers": [
+            {
+              "name": "peer0"
+            },
+            {
+              "name": "peer1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

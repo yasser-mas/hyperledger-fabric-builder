@@ -1,0 +1,157 @@
+{
+  "projectName": "Test-Network", 
+  "networkConfig": {
+    "isLocalHost": true, 
+    "tlsEnabled": true,
+    "networkVer": {
+      
+      "peer": "2.2.0",
+      "orderer": "2.2.0",
+      "couchdb": "2.2.0",
+      "ca": "1.4.8"
+    }
+  },
+  "orderer": {
+    
+    "name": "Orderer",
+    "mspid": "OrdererMSP",
+    "batchTimeout": "2s",
+    "batchSize": {
+      "maxMessageCount": 10,
+      "absoluteMaxBytes": "99 MB",
+      "PreferredMaxBytes": "512 KB"
+    },
+    "domain": "orderer.com",
+    "replicas": [
+      {
+        "hostName": "orderer1",
+        "publishedPort": 7050
+      },
+      {
+        "hostName": "orderer2",
+        "publishedPort": 8050
+      }
+    ]
+  },
+  "orgs": [
+    {
+      "name": "regualtor",
+      "mspid": "Regualtor",
+      "domain": "regulator.com",
+      "enableNodeOUs": true,
+      "usersCount": 2,
+      "certificateAuthorities": [
+        {
+          "caName": "ca-regulator",
+          "publishedCAPort": "7054",
+          "caUsername": "admin",
+          "caPassword": "adminpw"
+        }
+      ],
+
+      "peers": [
+        
+        {
+          "name": "peer0",
+          "couchdbUsername": "admin",
+          "couchdbPassword": "adminpw",
+          "isAnchor": true,
+          "publishedCouchdbPort": 5984,
+          "publishedPort": 7051,
+          "publishedEventPort": 7053
+        },{
+          "name": "peer1",
+          "couchdbUsername": "admin",
+          "couchdbPassword": "adminpw",
+          "isAnchor": true,
+          "publishedCouchdbPort": 5884,
+          "publishedPort": 7151,
+          "publishedEventPort": 7153
+        }
+      ]
+    }, {
+      "name": "asiacell",
+      "mspid": "Asiacell",
+      "domain": "asiacell.com",
+      "enableNodeOUs": true,
+      "usersCount": 2,
+      "certificateAuthorities": [
+        {
+          "caName": "ca-asiacell",
+          "publishedCAPort": "8054",
+          "caUsername": "admin",
+          "caPassword": "adminpw"
+        }
+      ],
+
+      "peers": [
+        
+        {
+          "name": "peer0",
+          "couchdbUsername": "admin",
+          "couchdbPassword": "adminpw",
+          "isAnchor": true,
+          "publishedCouchdbPort": 6984,
+          "publishedPort": 8051,
+          "publishedEventPort": 8053
+        },{
+          "name": "peer1",
+          "couchdbUsername": "admin",
+          "couchdbPassword": "adminpw",
+          "isAnchor": true,
+          "publishedCouchdbPort": 6884,
+          "publishedPort": 8151,
+          "publishedEventPort": 8153
+        }
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "consortiumName": "FourOrgsChannel",
+      "name": "myChannel",
+      "chaincodeLang": "java",
+      "chaincodeLifecycleManager": "Regulator", 
+      "chaincodeName": "mnp-chain",
+      "lifecycleEndorsement": {
+        "type": "ImplicitMeta",
+        "rule": "MAJORITY Endorsement"
+      },
+      "endorsement": {
+        "type": "ImplicitMeta",
+        "rule": "MAJORITY Endorsement"
+      },
+      "orgs": [
+        {
+          "mspid": "Regualtor",
+          "anchorPeers": [
+            {
+              "name": "peer0"
+            },
+            {
+              "name": "peer1"
+            }
+          ],
+          "endorsers": [
+            {
+              "name": "peer0"
+            },
+            {
+              "name": "peer1"
+            }
+          ]
+        },{
+          "mspid": "Asiacell",
+          "endorsers": [
+            {
+              "name": "peer0"
+            },
+            {
+              "name": "peer1"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

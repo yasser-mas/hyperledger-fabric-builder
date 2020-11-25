@@ -1,0 +1,22 @@
+{
+  "PeerOrgs": [
+    {
+      "Name": "orgs[].name",
+      "Domain": "orgs[].domain",
+      "EnableNodeOUs": "orgs[].enableNodeOUs",
+      "Template.Count": "orgs[].peers.size",
+      "Users.Count": "orgs[].usersCount"
+    }
+  ],
+  "OrdererOrgs": [
+    {
+      "Name": "orderer.name",
+      "Domain": "orderer.domain",
+      "Specs": [
+        {
+          "Hostname": "orderer.replicas[].hostName"
+        }
+      ]
+    }
+  ]
+}

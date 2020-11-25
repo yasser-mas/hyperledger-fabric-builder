@@ -1,0 +1,193 @@
+{
+  "version": "2", // Fixed
+  "volumes": {     // for each orderers and peers  
+    "orderer4.com": null,
+    "peer0.zain.com": null,
+    "peer1.zain.com": null
+  },
+  "networks": {
+    "fbn": null // Fabric Builder Network
+  },
+  "services": {
+    "ca1": {  // Foreach org ca
+      "image": "hyperledger/fabric-ca:1.4.8",
+      "environment": [
+        "FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server",
+        "FABRIC_CA_SERVER_CA_NAME=ca-zain",
+        "FABRIC_CA_SERVER_TLS_ENABLED=true",
+        "FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.zain.com-cert.pem",
+        "FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk"
+      ],
+      "ports": [
+        "8054:7054"
+      ],
+      "command": "sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.zain.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/priv_sk -b admin:adminpw -d'",
+      "volumes": [
+        "./crypto-config/peerOrganizations/zain.com/ca/:/etc/hyperledger/fabric-ca-server-config"
+      ],
+      "container_name": "ca_peerZain",
+      "networks": [
+        "byfn"
+      ]
+    },
+    "couchdb1": {
+      "container_name": "couchdb1",
+      "image": "couchdb:3.1",
+      "environment": [
+        "COUCHDB_USER=admin",
+        "COUCHDB_PASSWORD=adminpw"
+      ],
+      "ports": [
+        "6984:5984"
+      ],
+      "networks": [
+        "byfn"
+      ]
+    },
+    "peer0.zain.com": {
+      "container_name": "peer0.zain.com",
+      "extends": {
+        "file": "../base/peer-base.yaml",
+        "service": "peer-base"
+      },
+      "environment": [
+        "CORE_PEER_ID=peer0.zain.com",
+        "CORE_PEER_ADDRESS=peer0.zain.com:8051",
+        "CORE_PEER_LISTENADDRESS=0.0.0.0:8051",
+        "CORE_PEER_CHAINCODEADDRESS=peer0.zain.com:8052",
+        "CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052",
+        "CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.zain.com:8051",
+        "CORE_PEER_GOSSIP_EXTERNAL_ENDPOINT=peer0.zain.com:8051",
+        "CORE_PEER_GOSSIP_BOOTSTRAP=peer1.zain.com:8151",
+        "CORE_PEER_LOCALMSPID=Zain",
+        "CORE_LEDGER_STATE_STATEDATABASE=CouchDB",
+        "CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984",
+        "CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin",
+        "CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw"
+      ],
+      "volumes": [
+        "/var/run/:/host/var/run/",
+        "./crypto-config/peerOrganizations/zain.com/peers/peer0.zain.com/msp:/etc/hyperledger/fabric/msp",
+        "./crypto-config/peerOrganizations/zain.com/peers/peer0.zain.com/tls:/etc/hyperledger/fabric/tls",
+        "peer0.zain.com:/var/hyperledger/production"
+      ],
+      "ports": [
+        "8051:8051",
+        "8053:7053"
+      ],
+      "depends_on": [
+        "couchdb1"
+      ],
+      "extra_hosts": [
+        "peer0.asiacell.com:${ASIACELL_HOST}",
+        "peer1.asiacell.com:${ASIACELL_HOST}",
+        "peer0.korek.com:${KOREK_HOST}",
+        "peer1.korek.com:${KOREK_HOST}",
+        "peer0.regulator.com:${REGULATOR_HOST}",
+        "peer1.regulator.com:${REGULATOR_HOST}",
+        "orderer.com:${ASIACELL_HOST}",
+        "orderer2.com:${KOREK_HOST}",
+        "orderer3.com:${REGULATOR_HOST}"
+      ],
+      "networks": [
+        "byfn"
+      ]
+    },
+    "couchdb11": {
+      "container_name": "couchdb11",
+      "image": "couchdb:3.1",
+      "environment": [
+        "COUCHDB_USER=admin",
+        "COUCHDB_PASSWORD=adminpw"
+      ],
+      "ports": [
+        "6994:5984"
+      ],
+      "networks": [
+        "byfn"
+      ]
+    },
+    "peer1.zain.com": {
+      "container_name": "peer1.zain.com",
+      "extends": {
+        "file": "../base/peer-base.yaml",
+        "service": "peer-base"
+      },
+      "environment": [
+        "CORE_PEER_ID=peer1.zain.com",
+        "CORE_PEER_ADDRESS=peer1.zain.com:8151",
+        "CORE_PEER_LISTENADDRESS=0.0.0.0:8151",
+        "CORE_PEER_CHAINCODEADDRESS=peer1.zain.com:8152",
+        "CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8152",
+        "CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.zain.com:8151",
+        "CORE_PEER_GOSSIP_EXTERNAL_ENDPOINT=peer1.zain.com:8151",
+        "CORE_PEER_GOSSIP_BOOTSTRAP=peer0.zain.com:8051",
+        "CORE_PEER_LOCALMSPID=Zain",
+        "CORE_LEDGER_STATE_STATEDATABASE=CouchDB",
+        "CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb11:5984",
+        "CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin",
+        "CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw"
+      ],
+      "volumes": [
+        "/var/run/:/host/var/run/",
+        "./crypto-config/peerOrganizations/zain.com/peers/peer1.zain.com/msp:/etc/hyperledger/fabric/msp",
+        "./crypto-config/peerOrganizations/zain.com/peers/peer1.zain.com/tls:/etc/hyperledger/fabric/tls",
+        "peer1.zain.com:/var/hyperledger/production"
+      ],
+      "ports": [
+        "8151:8151",
+        "8153:7053"
+      ],
+      "depends_on": [
+        "couchdb11"
+      ],
+      "extra_hosts": [
+        "peer0.asiacell.com:${ASIACELL_HOST}",
+        "peer1.asiacell.com:${ASIACELL_HOST}",
+        "peer0.korek.com:${KOREK_HOST}",
+        "peer1.korek.com:${KOREK_HOST}",
+        "peer0.regulator.com:${REGULATOR_HOST}",
+        "peer1.regulator.com:${REGULATOR_HOST}",
+        "orderer.com:${ASIACELL_HOST}",
+        "orderer2.com:${KOREK_HOST}",
+        "orderer3.com:${REGULATOR_HOST}"
+      ],
+      "networks": [
+        "byfn"
+      ]
+    },
+    "orderer4.com": {
+      "extends": {
+        "file": "../base/peer-base.yaml",
+        "service": "orderer-base"
+      },
+      "environment": [
+        "ORDERER_GENERAL_LISTENPORT=10050"
+      ],
+      "container_name": "orderer4.com",
+      "networks": [
+        "byfn"
+      ],
+      "volumes": [
+        "./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block",
+        "./crypto-config/ordererOrganizations/com/orderers/orderer4.com/msp:/var/hyperledger/orderer/msp",
+        "./crypto-config/ordererOrganizations/com/orderers/orderer4.com/tls/:/var/hyperledger/orderer/tls",
+        "orderer4.com:/var/hyperledger/production/orderer"
+      ],
+      "ports": [
+        "10050:10050"
+      ],
+      "extra_hosts": [
+        "peer0.asiacell.com:${ASIACELL_HOST}",
+        "peer1.asiacell.com:${ASIACELL_HOST}",
+        "peer0.korek.com:${KOREK_HOST}",
+        "peer1.korek.com:${KOREK_HOST}",
+        "peer0.regulator.com:${REGULATOR_HOST}",
+        "peer1.regulator.com:${REGULATOR_HOST}",
+        "orderer.com:${ASIACELL_HOST}",
+        "orderer2.com:${KOREK_HOST}",
+        "orderer3.com:${REGULATOR_HOST}"
+      ]
+    }
+  }
+}
